@@ -21,7 +21,7 @@ const adminSmsRouter = require("./routes/admin/sms-routes")
 const adminOrderCheckRouter = require("./routes/admin/double-order")
 const app = express();
 const authRouter = require("./routes/auth-routes");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3002;
 const passport = require("passport");
 const session = require("express-session");
 
