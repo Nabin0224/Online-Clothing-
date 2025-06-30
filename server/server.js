@@ -24,6 +24,7 @@ const authRouter = require("./routes/auth-routes");
 const PORT = process.env.PORT || 3002;
 const passport = require("passport");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
 const mongoose = require("mongoose");
 
@@ -64,7 +65,21 @@ app.use(
 );
 
 app.use(
-  session({ secret: "secret", resave: false, saveUninitialized: true })
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.CONNECTION,
+      collectionName: 'sessions',
+    }),
+    cookie: {
+      secure: true,
+      sameSite: 'none',
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+    }
+  })
 );
 app.use(passport.initialize());
 app.use(passport.session());
