@@ -27,6 +27,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import { sendSms } from "../../../store/admin/sms-slice/index";
+import { Store_Name } from "../../utils/constants/storeConstants";
 
 
 const districts = [
@@ -301,7 +302,7 @@ const CreateCustomOrder = () => {
       sendSms({
         to: [data.phone],
         text: [
-          `Dear ${firstName}, Thanks for your order at STYLE ME. Your order is confirmed and being processed. Reach us at stylemeofficial.com.`,
+          `Dear ${firstName}, Thanks for your order at ${Store_Name}. Your order is confirmed and being processed. Reach us at stylemeofficial.com.`,
         ],
       })
     ).then((date) => {

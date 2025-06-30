@@ -42,6 +42,7 @@ import { fetchCartItems } from "../../../store/shop/cart-slice/index";
 import { Label } from "../ui/label";
 import AuthPopup from "./login-card";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Store_Name } from "../../utils/constants/storeConstants";
 
 function MenuItems({ setOpenMobileCartSheet }) {
   const navigate = useNavigate();
@@ -224,7 +225,7 @@ const ShoppingHeader = () => {
           className="flex items-center gap-2"
         >
           <img src={styleme} className="h-10 w-10 rounded-sm" />
-          <span className="font-bold">Style Me</span>
+          <span className="font-bold">{Store_Name}</span>
         </Link>
 
         {/* for mobile devices  */}

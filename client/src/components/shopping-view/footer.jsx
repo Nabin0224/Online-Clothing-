@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import { shoppingViewHeaderMenuItems } from "@/config";
 import { toast,  useToast } from "@/hooks/use-toast";
+import { Store_Name } from "../../utils/constants/storeConstants";
 
 
 const ShoppingFooter = () => {
@@ -78,7 +79,7 @@ const ShoppingFooter = () => {
     <div className="flex flex-col w-full  bg-black max-h-full border-t">
       <div className="h-[30%] flex flex-col md:flex-row w-full justify-between gap-2 ">
         <h1 className="text-white/90 font-semibold md:font-thin text-4xl md:text-6xl  mx-auto md:mx-16 tracking-widest my-4 md:my-12 ">
-          Style Me
+          {Store_Name}
         </h1>
         <div className="w-full md:w-1/2 relative flex  justify-center">
           <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
@@ -126,7 +127,7 @@ const ShoppingFooter = () => {
         <div className="text-white flex flex-col gap-3">
           <h3 className="text-2xl font-light mb-1  md:mb-2">Quick Links</h3>
           <div className="flex gap-2 mx-4 text-white/80 text-xs">
-            <p className="font-light md:text-sm">About Style Me</p>
+            <p className="font-light md:text-sm">{Store_Name}</p>
           </div>
           <div className="flex gap-2 mx-4 text-white/80 text-xs">
             <p className="font-light md:text-sm">Contact Us</p>
@@ -173,7 +174,7 @@ const ShoppingFooter = () => {
       <Separator className="w-[90%] md:w-[95%] mx-auto opacity-75 mt-4 mb-1" />
       <div className="text-white/80 w-full">
         <p className=" text-center mx-auto md:mx-[525px] font-extralight text-xs">
-          COPYRIGHT © 2025 Style Me | All Rights Reserved
+          COPYRIGHT © 2025 {Store_Name} | All Rights Reserved
         </p>
       </div>
     </div>

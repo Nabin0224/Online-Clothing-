@@ -23,6 +23,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { AlertDialogHeader } from "@/components/ui/alert-dialog";
 import { sendSms } from "../../../store/admin/sms-slice/index";
 import { fetchAllAddress } from "../../../store/shop/address-slice/index";
+import { Store_Name } from "../../utils/constants/storeConstants";
 
 const ShoppingCheckout = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -330,7 +331,7 @@ const ShoppingCheckout = () => {
     setTimeout(() => {
       dispatch(createCodOrder(orderData)).then((data)=> {
         if(data.payload.success) {
-          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at STYLE ME. Your order is confirmed and being processed. Reach us at stylemeofficial.com.`]}))
+          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at ${Store_Name}.Your order is confirmed and being processed. Reach us at stylemeofficial.com.`]}))
         }
       })
       navigate("/payment-success");
