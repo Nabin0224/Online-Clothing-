@@ -14,14 +14,19 @@ const handleImageUpload = async (req, res) => {
       let mimetype = file.mimetype;
       console.log("mimetype before converting", mimetype);
       // check for heic and convert to jpeg
-      if (mimetype == "image/heic") {
+      try {
+        console.log("Starting HEIC conversion...");
         const outputBuffer = await heicConvert({
           buffer,
           format: "JPEG",
           quality: 1,
         });
+        console.log("HEIC conversion successful");
         buffer = outputBuffer;
         mimetype = "image/jpeg";
+      } catch (err) {
+        console.error("HEIC conversion failed:", err);
+        throw err; // or handle gracefully
       }
       console.log("mimetype after converting", mimetype);
       const b64 = Buffer.from(buffer).toString("base64");
