@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation, useParams } from "react-router-dom";
+import heic2any from "heic2any";
 
 const ProductImageUpload = ({
   uploadedImageUrls,
@@ -29,16 +30,36 @@ const ProductImageUpload = ({
         }
   }, [product])
   
-  function handleImageFileChange(event) {
+  async function handleImageFileChange(event) {
     if(id) {
       setImageFiles(uploadedImageUrls)
     }
     const selectedFiles = Array.from(event.target.files);
     if (selectedFiles.length > 0) {
-      setImageFiles(selectedFiles); // Append new images
-    
-  }
-  
+      // Convert HEIC files to JPEG before setting
+      const convertedFiles = [];
+      for (const file of selectedFiles) {
+        if (file.type === "image/heic" || file.name.endsWith(".heic")) {
+          try {
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: "image/jpeg",
+              quality: 0.9,
+            });
+            const newFile = new File([convertedBlob], file.name.replace(/\.heic$/i, ".jpg"), {
+              type: "image/jpeg",
+            });
+            convertedFiles.push(newFile);
+          } catch (err) {
+            alert("Failed to convert HEIC image. Please try another file.");
+            return;
+          }
+        } else {
+          convertedFiles.push(file);
+        }
+      }
+      setImageFiles(convertedFiles); // Append new images
+    }
   }
   
   function handleDrag(event) {
