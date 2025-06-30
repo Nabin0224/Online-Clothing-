@@ -1,4 +1,6 @@
 const { handleImageUtils } = require("../../helpers/cloudinary");
+const sharp = require("sharp");
+const heicConvert = require("heic-convert");
 const Product = require("../../models/products");
 
 const handleImageUpload = async (req, res) => {
@@ -8,13 +10,28 @@ const handleImageUpload = async (req, res) => {
     const uploadedUrls = [];
 
     for (const file of imageFiles) {
-      const b64 = Buffer.from(file.buffer).toString("base64");
-      const url = "data:" + file.mimetype + ";base64," + b64;
-      const result = await handleImageUtils(url);
+      let buffer = file.buffer;
+      let mimetype = file.mimetype;
+      console.log("mimetype before converting", mimetype);
+      // check for heic and convert to jpeg
+      if (mimetype == "image/heic") {
+        const outputBuffer = await heicConvert({
+          buffer,
+          format: "JPEG",
+          quality: 1,
+        });
+        buffer = outputBuffer;
+        mimetype = "image/jpeg";
+      }
+      console.log("mimetype after converting", mimetype);
+      const b64 = Buffer.from(buffer).toString("base64");
+      const url = "data:" + mimetype + ";base64," + b64;
 
+      const result = await handleImageUtils(url);
+      console.log("url for cloudinary", result.secure_url);
       uploadedUrls.push(result.secure_url);
     }
-    console.log(uploadedUrls);
+    console.log("uploadedurls", uploadedUrls);
 
     res.status(200).json({
       success: true,
@@ -94,8 +111,7 @@ const fetchAllProducts = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("id", id)
-
+    console.log("id", id);
 
     const findProduct = await Product.findById(id);
     console.log(findProduct);
@@ -122,7 +138,7 @@ const editProduct = async (req, res) => {
       salePrice,
       totalStock,
       image,
-      colors
+      colors,
     } = req.body;
 
     console.log("req body in edit ", req.body);
@@ -135,7 +151,7 @@ const editProduct = async (req, res) => {
     findProduct.salePrice = salePrice || findProduct.salePrice;
     findProduct.totalStock = totalStock || findProduct.totalStock;
     findProduct.image = image || findProduct.image;
-    findProduct.colors = colors || findProduct.colors
+    findProduct.colors = colors || findProduct.colors;
 
     await findProduct.save();
 
@@ -145,7 +161,7 @@ const editProduct = async (req, res) => {
       data: findProduct,
     });
   } catch (error) {
-     res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Error occured",
       error: error.message,
