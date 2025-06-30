@@ -108,7 +108,7 @@ router.get(
   
        
           // Redirect user to frontend
-          res.redirect(`${process.env.FRONTEND_URL}/`);
+          res.redirect(`${process.env.FRONTEND_URL}/auth/login`);
         
     } catch (error) {
         console.log("error in call back is ", error.message);
