@@ -302,7 +302,7 @@ const CreateCustomOrder = () => {
       sendSms({
         to: [data.phone],
         text: [
-          `Dear ${firstName}, Thanks for your order at ${Store_Name}. Your order is confirmed and being processed. Reach us at stylemeofficial.com.`,
+          `Dear ${firstName}, Thanks for your order at ${Store_Name}. Your order is confirmed and being processed. Reach us at instagram.`,
         ],
       })
     ).then((date) => {
