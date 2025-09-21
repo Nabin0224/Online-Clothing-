@@ -298,7 +298,7 @@ const CreateCustomOrder = () => {
     const firstName = fullName.split(" ")[0].toUpperCase();
     console.log("first name", firstName);
 
-    dispatch(
+    !id && dispatch(
       sendSms({
         to: [data.phone],
         text: [
