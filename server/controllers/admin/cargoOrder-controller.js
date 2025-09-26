@@ -11,6 +11,7 @@ const getAllOrdersFromCargo = async (req, res) => {
 
     console.log("reached in try of cargo");
 
+
     while (hasMore) {
       const getAllOrders = await axios.get(
         `https://domestic.namastecargonepal.com/api/vendor/orders?page=${page}`,
@@ -25,7 +26,7 @@ const getAllOrdersFromCargo = async (req, res) => {
         }
       );
       const { data, meta } = getAllOrders.data;
-      console.log("data", data)
+    //   console.log("data", data)
       allOrdersList = [...allOrdersList, ...data];
       if (meta.current_page < meta.last_page) {
         page++;
