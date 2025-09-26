@@ -76,6 +76,7 @@ const AdminOrdersView = () => {
     (state) => state.shoppingSearch
   );
   const [search, setSearch] = useState("");
+  const [cargoOrders, setCargoOrders] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -86,6 +87,21 @@ const AdminOrdersView = () => {
     totalOrders,
     totalPages,
   } = useSelector((state) => state.adminOrders);
+
+  console.log(orderList, "orderLIst");
+
+  // importing order status for namaste cargo
+
+  useEffect(() => {
+    async function getAllOrdersFromCargo() {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/admin/cargoOrders/get`
+      );
+      console.log("Response from Cargo", response.data);
+      setCargoOrders(response.data);
+    }
+    getAllOrdersFromCargo();
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -366,29 +382,31 @@ const AdminOrdersView = () => {
         </Button>
       </div>
       <div className="flex justify-between">
-      <form onSubmit={handleSubmit} className="w-full max-w-md  mt-2">
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="text"
-            placeholder="Search by customer name, order ID, or phone..."
-            value={search}
-            onChange={handleChange}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <Button
-            type="submit"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-4 bg-purple-600 text-white hover:bg-purple-700"
-          >
-            Search
-          </Button>
-        </div>
-      </form>
-     
-        <Button className="mt-2" onClick={handleBulkPrint}>Print All</Button>
+        <form onSubmit={handleSubmit} className="w-full max-w-md  mt-2">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
+            <Input
+              type="text"
+              placeholder="Search by customer name, order ID, or phone..."
+              value={search}
+              onChange={handleChange}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <Button
+              type="submit"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-4 bg-purple-600 text-white hover:bg-purple-700"
+            >
+              Search
+            </Button>
+          </div>
+        </form>
+
+        <Button className="mt-2" onClick={handleBulkPrint}>
+          Print All
+        </Button>
       </div>
 
       <Tabs defaultValue="Website Order" className="relative">
@@ -417,6 +435,7 @@ const AdminOrdersView = () => {
                     <TableHead>Customer Name</TableHead>
                     <TableHead>Order Date</TableHead>
                     <TableHead>Order Status</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Order Price</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -484,6 +503,17 @@ const AdminOrdersView = () => {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`py-1 px-3 ${"bg-gray-400"}`}>
+                          {cargoOrders && cargoOrders?.length > 0
+                            ? cargoOrders.find(
+                                (order) =>
+                                  order.receiver_phone ===
+                                  item?.addressInfo?.phone
+                              )?.order?.latest_status
+                            : null}
+                        </Badge>
                       </TableCell>
                       <TableCell>{item?.totalAmount}</TableCell>
                       <TableCell className="flex gap-2">

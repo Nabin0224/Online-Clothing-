@@ -81,7 +81,7 @@ const ShoppingProducttile = ({
               onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
               className=" absolute bottom-1 w-[90%] flex-grow hidden"
             >
-              Add to Cart
+              
             </Button>
           )}
         </CardFooter>

@@ -28,6 +28,8 @@ export const adminSidebarMeanItems = [
 
 function MenuItems({setOpen}) {
   const navigate = useNavigate();
+
+
   return (
     <nav className="flex flex-col gap-3 mt-8">
       {adminSidebarMeanItems.map((menuItem) => (
@@ -36,6 +38,7 @@ function MenuItems({setOpen}) {
           onClick={() => {
             navigate(menuItem.path)
             setOpen ? setOpen(false) : null
+            
           }}
           className="  text-muted-foreground hover:text-foreground  hover:bg-muted   cursor-pointer flex gap-2 py-4 px-2"
         >
