@@ -36,6 +36,10 @@ const getAllOrdersFromCargo = async (req, res) => {
     }
     console.log("console in backend cargo try", allOrdersList.length);
 
+    // retriving 
+
+
+
     res.status(200).json({
       success: true,
       data: allOrdersList,

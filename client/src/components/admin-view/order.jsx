@@ -93,14 +93,13 @@ const AdminOrdersView = () => {
   // importing order status for namaste cargo
 
   useEffect(() => {
-    async function getAllOrdersFromCargo() {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/admin/cargoOrders/get`
-      );
-      console.log("Response from Cargo", response.data);
-      setCargoOrders(response.data);
-    }
-    getAllOrdersFromCargo();
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/admin/cargoOrders/get`)
+      .then((response) => {
+        console.log("Response from Cargo", response.data.data);
+        setCargoOrders(response.data.data);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -505,15 +504,22 @@ const AdminOrdersView = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`py-1 px-3 ${"bg-gray-400"}`}>
-                          {cargoOrders && cargoOrders?.length > 0
-                            ? cargoOrders.find(
-                                (order) =>
-                                  order.receiver_phone ===
-                                  item?.addressInfo?.phone
-                              )?.order?.latest_status
-                            : null}
-                        </Badge>
+                      <Badge
+  className={`py-1 px-3 ${
+    cargoOrders?.find(
+      (order) => order?.receiver_phone === item?.addressInfo?.phone
+    )?.latest_status?.toLowerCase() === "delivered"
+      ? "bg-green-500"
+      : "bg-red-500"
+  }`}
+>
+  {cargoOrders && cargoOrders?.length > 0
+    ? cargoOrders.find(
+        (order) =>
+          order?.receiver_phone === item?.addressInfo?.phone
+      )?.latest_status
+    : "No Status"}
+</Badge>
                       </TableCell>
                       <TableCell>{item?.totalAmount}</TableCell>
                       <TableCell className="flex gap-2">
