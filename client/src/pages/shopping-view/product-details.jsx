@@ -38,6 +38,7 @@ const ProductDetailsPage = () => {
   const productId = useParams();
 
   const { user } = useSelector((state) => state.auth);
+  console.log("userId in product details", user)
   const { formData } = useSelector((state) => state.esewaOrders);
   const { cartItems } = useSelector((state) => state.shoppingCart);
   const guestCart = useSelector((state) => state.shoppingCart);
@@ -65,6 +66,7 @@ const ProductDetailsPage = () => {
       setShowAuthPopup(true);
     }
   };
+  console.log("cartItems for users", cartItems)
 
   const { productList, productDetails } = useSelector(
     (state) => state.shoppingProducts
@@ -205,6 +207,7 @@ const ProductDetailsPage = () => {
       ).then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchCartItems(user?.id));
+          console.log("cartItems after added", cartItems)
           toast({
             title: "Product Added to the Cart",
             duration: 2000,

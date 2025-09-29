@@ -1,5 +1,5 @@
 import styleme from "../../assets/logo/styleme.jpg";
-import favicon from "../../../public/favicon.jpg";
+import favicon from "/favicon.jpg";
 import {
   CircleUserRound,
   House,
@@ -113,7 +113,7 @@ function HeaderRightContent({
 }) {
   function handleLogOut() {
     dispatch(logOut());
-    navigate("/auth/login");
+    navigate("/");
   }
 
   const { cartItems } = useSelector((state) => state.shoppingCart);
@@ -205,7 +205,10 @@ function HeaderRightContent({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={handleLogOut}>
+          <DropdownMenuItem onClick={()=> {handleLogOut
+           setOpenMobileCartSheet(false)}
+          }
+           >
             <LogOutIcon className="mr-2 h-4 w-4" /> Log out
           </DropdownMenuItem>
         </DropdownMenuContent>

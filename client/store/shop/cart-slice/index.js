@@ -24,27 +24,27 @@ export const addToCart = createAsyncThunk(
 export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async (userId) => {
-    // if (userId) {
-    //   const response = await axios.get(
-    //     `${import.meta.env.VITE_API_URL}/api/shop/cart/get/${userId}`
-    //   );
-    //   return response.data;
-    // }
-    // const gid = getGuestId();
-    // const response = await axios.get(
-    //   `${import.meta.env.VITE_API_URL}/api/shop/cart/get/undefined`,
-    //   { params: { guestId: gid } }
-    // );
-    // return response.data;
     if (userId) {
-      return (await axios.get(`${API}/cart/get/${userId}`)).data;
-    } else {
-      const gid = getGuestId();
-      console.log("guestId by fetch cart", gid)
-      return (
-        await axios.get(`${API}/cart/get`, { params: { guestId: gid } })
-      ).data;
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/shop/cart/get/${userId}`
+      );
+      return response.data;
     }
+    const gid = getGuestId();
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/get/undefined`,
+      { params: { guestId: gid } }
+    );
+    return response.data;
+    // if (userId) {
+    //   return (await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/cart/get/${userId}`)).data;
+    // } else {
+    //   const gid = getGuestId();
+    //   console.log("guestId by fetch cart", gid)
+    //   return (
+    //     await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/cart/get`, { params: { guestId: gid } })
+    //   ).data;
+    // }
   }
 );
 
@@ -65,26 +65,26 @@ export const updateCartQuantity = createAsyncThunk(
 export const deleteCartItems = createAsyncThunk(
   "cart/deleteCartItem",
   async ({ userId, productId }) => {
-    // if (userId) {
-    //   const response = await axios.delete(
-    //     `${import.meta.env.VITE_API_URL}/api/shop/cart/delete-cart/${userId}/${productId}`
-    //   );
-    //   return response.data;
-    // }
-    // const gid = getGuestId();
-    // const response = await axios.delete(
-    //   `${import.meta.env.VITE_API_URL}/api/shop/cart/delete-cart/undefined/${productId}`,
-    //   { params: { guestId: gid } }
-    // );
-    // return response.data;
     if (userId) {
-      return (await axios.delete(`${API}/cart/delete-cart/${userId}/${productId}`)).data;
-    } else {
-      const gid = getGuestId();
-      return (
-        await axios.delete(`${API}/cart/delete-cart`, { params: { guestId: gid, productId } })
-      ).data;
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/shop/cart/delete-cart/${userId}/${productId}`
+      );
+      return response.data;
     }
+    const gid = getGuestId();
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/delete-cart/undefined/${productId}`,
+      { params: { guestId: gid } }
+    );
+    return response.data;
+    // if (userId) {
+    //   return (await axios.delete(`${API}/cart/delete-cart/${userId}/${productId}`)).data;
+    // } else {
+    //   const gid = getGuestId();
+    //   return (
+    //     await axios.delete(`${API}/cart/delete-cart`, { params: { guestId: gid, productId } })
+    //   ).data;
+    // }
   }
 );
 

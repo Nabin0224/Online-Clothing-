@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 const UserCartWrapper = ({ setOpenCartSheet, setOpenMobileCartSheet}) => {
     const  navigate = useNavigate();
     const { cartItems } = useSelector((state)=> state.shoppingCart);
+    console.log("cartItems in wrapper itens", cartItems)
 
     const safeItems = Array.isArray(cartItems)
       ? cartItems
