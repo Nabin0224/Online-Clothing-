@@ -10,75 +10,84 @@ import {
   fetchAllAddress,
 } from "../../../store/shop/address-slice/index";
 import AddressCard from "./address-card";
-import { current } from "@reduxjs/toolkit";
 import { useToast } from "@/hooks/use-toast";
 
+// ✅ utility: get or create guestId
+function getOrCreateGuestId() {
+  let guestId = localStorage.getItem("guestId");
+  if (!guestId) {
+    guestId = crypto.randomUUID();
+    localStorage.setItem("guestId", guestId);
+  }
+  return guestId;
+}
 
-const Address = ({setCurrentSelectedAddressInfo, selectedId}) => {
- 
+const Address = ({ setCurrentSelectedAddressInfo, selectedId }) => {
   const initialAddressFormData = {
     fullName: "",
     city: "",
     address: "",
     nearest_landmark: "",
     phone: "",
-    deliveryCharge: ""
+    deliveryCharge: "",
   };
-  
+
   const [formData, setFormData] = useState(initialAddressFormData);
+  const [currentEditedId, SetCurrentEditedId] = useState(null);
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shoppingAddress);
-  const [currentEditedId, SetCurrentEditedId] = useState(null);
   const { toast } = useToast();
 
+  const guestId = !user?.id ? getOrCreateGuestId() : null;
+
+  // add/edit address
   function handleManageAddress(event) {
     event.preventDefault();
 
-    if(currentEditedId === null)
- {   if( addressList.length >= 2 ){
-    toast({
-      title: "Max 2 addresses can be added!",
-      variant: "destructive",
-      duration: 2000,
-    })
-    return;
-  }
-}
-  
-    currentEditedId !== null
-      ? dispatch(
-          editAddress({
-            userId: user?.id,
-            addressId: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddress(user?.id));
-            setFormData(initialAddressFormData);
-            SetCurrentEditedId(null);
-            
-          }
+    if (currentEditedId === null && addressList.length >= 2) {
+      toast({
+        title: "Max 2 addresses can be added!",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    if (currentEditedId !== null) {
+      dispatch(
+        editAddress({
+          userId: user?.id,
+          guestId,
+          addressId: currentEditedId,
+          formData,
         })
-      :  dispatch(
-          addNewAddress({
-            ...formData,
-            userId: user?.id,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddress(user?.id)).then((data)=> {
-              const latest = data.payload.data;
-              const lastAddress = latest?.[latest.length-1];
-              console.log("payload", latest)
-              if(latest) {
+      ).then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllAddress({ userId: user?.id, guestId }));
+          setFormData(initialAddressFormData);
+          SetCurrentEditedId(null);
+        }
+      });
+    } else {
+      dispatch(
+        addNewAddress({ userId: user?.id, guestId, formData })
+      ).then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllAddress({ userId: user?.id, guestId })).then(
+            (res) => {
+              const latest = res.payload.data;
+              const lastAddress = latest?.[latest.length - 1];
+              if (lastAddress) {
                 setCurrentSelectedAddressInfo(lastAddress);
               }
-            })
-            setFormData(initialAddressFormData);
-          }
-        });
+            }
+          );
+          setFormData(initialAddressFormData);
+        }
+      });
+    }
   }
 
   function isFormValid() {
@@ -87,54 +96,63 @@ const Address = ({setCurrentSelectedAddressInfo, selectedId}) => {
     );
   }
 
-  function handleDeleteAddress(getCurrentAddressId) {
+  // delete address
+  function handleDeleteAddress(address) {
     dispatch(
-      deleteAddress({ userId: user.id, addressId: getCurrentAddressId._id })
+      deleteAddress({
+        userId: user?.id,
+        guestId,
+        addressId: address._id,
+      })
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchAllAddress(user?.id));
+        dispatch(fetchAllAddress({ userId: user?.id, guestId }));
       }
     });
   }
 
-  function handleEditAddress(getCurrentAddressId) {
-    SetCurrentEditedId(getCurrentAddressId?._id);
+  // edit address
+  function handleEditAddress(address) {
+    SetCurrentEditedId(address?._id);
     setFormData({
-      ...formData,
-      fullName: getCurrentAddressId?.fullName,
-      address: getCurrentAddressId?.address,
-      city: getCurrentAddressId?.city,
-      nearest_landmark: getCurrentAddressId?.nearest_landmark,
-      phone: getCurrentAddressId?.phone,
+      fullName: address?.fullName,
+      address: address?.address,
+      city: address?.city,
+      nearest_landmark: address?.nearest_landmark,
+      phone: address?.phone,
+      deliveryCharge: address?.deliveryCharge,
     });
   }
 
   useEffect(() => {
-    dispatch(fetchAllAddress(user?.id));
-  }, [dispatch]);
+    dispatch(fetchAllAddress({ userId: user?.id, guestId }));
+  }, [dispatch, user?.id]);
 
   return (
     <Card>
-      <div className="p-2 grid grid-cols-1 sm:grid-cols-2 md:grid grid- cols-3 gap-2">
-        {addressList && addressList.length > 0
-          ? addressList.map((addressItem) => (
-              <AddressCard
-                selectedId={selectedId}
-                handleDeleteAddress={handleDeleteAddress}
-                addressInfo={addressItem}
-                handleEditAddress={handleEditAddress}
-                setCurrentSelectedAddressInfo={setCurrentSelectedAddressInfo}
-              />
-            ))
-          : null}
+      <div className="p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+        {addressList?.length > 0 &&
+          addressList.map((addressItem) => (
+            <AddressCard
+              key={addressItem._id}
+              selectedId={selectedId}
+              handleDeleteAddress={handleDeleteAddress}
+              addressInfo={addressItem}
+              handleEditAddress={handleEditAddress}
+              setCurrentSelectedAddressInfo={setCurrentSelectedAddressInfo}
+            />
+          ))}
       </div>
       <CardHeader>
         <CardTitle>
-          {/* {" "}
-          {currentEditedId !== null ? "Edit Address" : "Add New Address"} */}
+          {currentEditedId !== null ? "Edit Address" : "Add New Address"}
         </CardTitle>
       </CardHeader>
-      <CardContent className={`${currentEditedId === null && selectedId !== null ? 'hidden' : 'block'}`}>
+      <CardContent
+        className={`${
+          currentEditedId === null && selectedId !== null ? "hidden" : "block"
+        }`}
+      >
         <CommonForm
           formControls={addressFormControls}
           formData={formData}
@@ -142,7 +160,6 @@ const Address = ({setCurrentSelectedAddressInfo, selectedId}) => {
           buttonText={currentEditedId !== null ? "Save" : "Add"}
           onSubmit={handleManageAddress}
           isBtnDisabled={!isFormValid()}
-          // setCurrentSelectedAddressInfo={setCurrentSelectedAddressInfo}
         />
       </CardContent>
     </Card>

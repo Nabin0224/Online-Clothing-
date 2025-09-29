@@ -9,6 +9,9 @@ import {
   addToCart,
   fetchCartItems,
   updateCartQuantity,
+  addGuestCartItem,
+  updateGuestCartItem,
+  deleteGuestCartItem,
 } from "../../../store/shop/cart-slice/index";
 import { useDispatch } from "react-redux";
 
@@ -28,7 +31,7 @@ import UserCartWrapper from "../../components/shopping-view/cart-wrapper";
 
 const ProductDetailsPage = () => {
   const [openMobileCartSheet, setOpenMobileCartSheet] = useState(false);
-    const [openCartSheet, setOpenCartSheet] = useState(false);
+  const [openCartSheet, setOpenCartSheet] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -37,11 +40,18 @@ const ProductDetailsPage = () => {
   const { user } = useSelector((state) => state.auth);
   const { formData } = useSelector((state) => state.esewaOrders);
   const { cartItems } = useSelector((state) => state.shoppingCart);
+  const guestCart = useSelector((state) => state.shoppingCart);
   const [cartColor, setCartColor] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
 
+  console.log("guestCart", guestCart);
+  const displayedCartItems = user?.id
+    ? (cartItems && cartItems.items ? cartItems.items : [])
+    : (Array.isArray(cartItems) ? cartItems : []);
+  console.log("displayed cart items", displayedCartItems);
+  console.log("user cart items", cartItems);
   const handleCheckLogin = () => {
     if (!user) {
       toast({
@@ -75,10 +85,17 @@ const ProductDetailsPage = () => {
   }, [productDetails]);
 
   console.log("productDetals", productDetails);
-  console.log("cartItems in product details", cartItems)
+  console.log("cartItems in product details", cartItems);
+  console.log("user:", user);
+  console.log("redux shoppingCart.cartItems:", cartItems);
+  console.log("redux guestCart.cartItems:", guestCart.cartItems);
+  console.log("final displayedCartItems:", displayedCartItems);
+
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [user, productId]);
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [user?.id, productId]);
 
   useEffect(() => {
     dispatch(fetchProductDetails(productId.id));
@@ -103,7 +120,35 @@ const ProductDetailsPage = () => {
       (item) =>
         item.productId === getCurrentProductId && item.color === selectedColor
     );
-    console.log("selectedColor", selectedColor)
+    console.log("selectedColor", selectedColor);
+
+    if (!user) {
+      if (!selectedColor) {
+        toast({
+          title: "Please choode a color!",
+          variant: "destructive",
+          duration: 1000,
+        });
+        return;
+      }
+
+      dispatch(
+        addGuestCartItem({
+          productId: getCurrentProductId,
+          quantity: finalQuantity,
+          color: selectedColor,
+          price: productDetails.price,
+          salePrice: productDetails.salePrice,
+          title: productDetails.title,
+          image: productDetails.image[0],
+        })
+      );
+      toast({
+        title: "Added to cart",
+        duration: 2000,
+      });
+      return;
+    }
 
     if (existingCartItem) {
       const updatedQuantity = finalQuantity; // Instead of adding, directly replace it
@@ -172,6 +217,31 @@ const ProductDetailsPage = () => {
   function handleCartQuantity(getCartItem, typeofAction) {
     if (!selectedColor) {
       toast({ title: "Please select a color first!", variant: "destructive" });
+      return;
+    }
+
+    if (!user) {
+      let updatedQuantity =
+        typeofAction === "plus"
+          ? getCartItem.quantity + 1
+          : getCartItem.quantity - 1;
+
+      if (updatedQuantity < 1) {
+        dispatch(
+          deleteGuestCartItem({
+            productId: getCartItem.productId,
+            color: selectedColor,
+          })
+        );
+        return;
+      }
+      dispatch(
+        updateGuestCartItem({
+          productId: getCartItem.productId,
+          color: selectedColor,
+          quantity: updatedQuantity,
+        })
+      );
       return;
     }
 
@@ -351,69 +421,84 @@ const ProductDetailsPage = () => {
         <Separator className="w-full bg-black/20" />
 
         <div className="md:bottom-8 w-full mx-auto mb-2">
-  {productDetails?.totalStock === 0 && (
-    <Button className="w-full opacity-60 cursor-not-allowed bg-[#E5E5E5]">
-      Out of Stock
-    </Button>
-  )}
+          {productDetails?.totalStock === 0 && (
+            <Button className="w-full opacity-60 cursor-not-allowed bg-[#E5E5E5]">
+              Out of Stock
+            </Button>
+          )}
 
+          {/* 
   {productDetails?.totalStock !== 0 && !user && (
-    <Dialog open={showAuthPopup} onOpenChange={setShowAuthPopup}>
-      <DialogTrigger asChild>
+    // <Dialog open={showAuthPopup} onOpenChange={setShowAuthPopup}>
+    //   <DialogTrigger asChild>
        
-        <Button
-          variant="secondary"
-          onClick={() => {
-            toast({
-              title: "Please login to add items to cart!",
-              variant: "destructive",
-            });
-            setIsLogin(false);
-            setShowAuthPopup(true);
-          }}
-          className="w-full rounded-sm"
-        >
-          Add to Cart
-        </Button>
+    //     <Button
+    //       variant="secondary"
+    //       onClick={() => {
+    //         toast({
+    //           title: "Please login to add items to cart!",
+    //           variant: "destructive",
+    //         });
+    //         setIsLogin(false);
+    //         setShowAuthPopup(true);
+    //       }}
+    //       className="w-full rounded-sm"
+    //     >
+    //       Add to Cart
+    //     </Button>
        
-      </DialogTrigger>
-      <DialogContent className="max-w-[90%] md:max-w-md">
-        <AuthPopup isLogin={isLogin} setIsLogin={setIsLogin} />
-      </DialogContent>
-    </Dialog>
-  )}
-
-  {productDetails?.totalStock !== 0 && user && (
-     <Sheet
-     open={openCartSheet}
-     onOpenChange={()=> {
-       setOpenCartSheet(false);
-       setOpenMobileCartSheet(false);
-     }}
-     >
+    //   </DialogTrigger>
+    //   <DialogContent className="max-w-[90%] md:max-w-md">
+    //     <AuthPopup isLogin={isLogin} setIsLogin={setIsLogin} />
+    //   </DialogContent>
+    // </Dialog>
+    
     <Button
-      variant="secondary"
-      onClick={() =>
-      {  handleAddtoCart(productDetails?._id, productDetails?.totalStock)
-        selectedColor &&  setOpenCartSheet(true)
-      }
-      }
-      className="w-full rounded-sm"
-    >
-      Add to Cart
-    </Button>
-    <UserCartWrapper
-              cartItems={
-                cartItems && cartItems.items && cartItems.items.length > 0
-                  ? cartItems.items
-                  : []
-              }
-              setOpenCartSheet={setOpenCartSheet}
-              setOpenMobileCartSheet={setOpenMobileCartSheet}
-            />
-        </Sheet>
-  )}
-</div>
+    variant="secondary"
+    onClick={() => {
+      handleAddtoCart(productDetails?._id, productDetails?.totalStock)
+      
+    }}
+    className="w-full rounded-sm"
+  >
+    Add to Cart
+  </Button>
+  )} */}
+
+          {productDetails?.totalStock !== 0 && (
+            <Sheet
+              open={openCartSheet}
+              onOpenChange={() => {
+                setOpenCartSheet(false);
+                setOpenMobileCartSheet(false);
+              }}
+            >
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  handleAddtoCart(
+                    productDetails?._id,
+                    productDetails?.totalStock
+                  );
+                  selectedColor && setOpenCartSheet(true);
+                }}
+                className="w-full rounded-sm"
+              >
+                Add to Cart
+              </Button>
+              <UserCartWrapper
+                cartItems={
+                  displayedCartItems
+                  // cartItems && cartItems.items && cartItems.items.length > 0
+                  // ? cartItems.items
+                  // : []
+                }
+                setOpenCartSheet={setOpenCartSheet}
+                setOpenMobileCartSheet={setOpenMobileCartSheet}
+              />
+            </Sheet>
+          )}
+        </div>
 
         <div className="md:bottom-8 w-full mx-auto ">
           {productDetails?.totalStock === 0 ? (

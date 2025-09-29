@@ -64,8 +64,8 @@ const ShoppingCheckout = () => {
   console.log(nepalTime); // Output: "2025-04-02"
 
   useEffect(() => {
-      
-    dispatch(fetchAllAddress(user?.id)).then((data)=> {
+    if (!user?.id) return;
+    dispatch(fetchAllAddress(user.id)).then((data)=> {
      console.log("data in useeffect", data)
      const list = data?.payload?.data;
      if(list && list.length > 0 && !currentSelectedAddressInfo) {
@@ -73,12 +73,19 @@ const ShoppingCheckout = () => {
      }
     })
    }, [dispatch, user?.id]);
+
+  
    
 
 
+  // Normalize items for guest vs logged-in
+  const normalizedItems = user?.id
+    ? (cartItems && cartItems.items ? cartItems.items : [])
+    : (Array.isArray(cartItems) ? cartItems : []);
+
   const totalCartAmount =
-    cartItems?.items && cartItems.items.length > 0
-      ? cartItems.items.reduce(
+    normalizedItems && normalizedItems.length > 0
+      ? normalizedItems.reduce(
           (sum, currentItem) =>
             sum +
             (currentItem?.salePrice > 0
@@ -110,9 +117,9 @@ const ShoppingCheckout = () => {
     }
 
     const orderData = {
-      userId: user?.id,
-      cartId: cartItems?._id,
-      cartItem: cartItems?.items?.map((singleCartItem) => ({
+      userId: user?.id || null,
+      cartId: user?.id ? (cartItems?._id || null) : null,
+      cartItem: normalizedItems.map((singleCartItem) => ({
         productId: singleCartItem?.productId,
         price:
           singleCartItem?.salePrice > 0
@@ -122,9 +129,16 @@ const ShoppingCheckout = () => {
         image: singleCartItem?.image,
         quantity: singleCartItem?.quantity,
       })),
-      addressInfo: {
+      addressInfo: user?.id ? {
         fullName: currentSelectedAddressInfo?.fullName,
         addressId: currentSelectedAddressInfo?._id,
+        address: currentSelectedAddressInfo?.address,
+        city: currentSelectedAddressInfo?.city,
+        nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
+        phone: currentSelectedAddressInfo?.phone,
+      } : {
+        fullName: currentSelectedAddressInfo?.fullName,
+        addressId: null,
         address: currentSelectedAddressInfo?.address,
         city: currentSelectedAddressInfo?.city,
         nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
@@ -179,7 +193,7 @@ const ShoppingCheckout = () => {
 
     try {
       const orderData = {
-        cartItem: cartItems?.items?.map((singleCartItem) => ({
+        cartItem: normalizedItems.map((singleCartItem) => ({
           productId: singleCartItem?.productId,
           price:
             singleCartItem?.salePrice > 0
@@ -189,13 +203,20 @@ const ShoppingCheckout = () => {
           image: singleCartItem?.image,
           quantity: singleCartItem?.quantity,
         })),
-        userId: user.id,
-        cartId: cartItems?._id,
+        userId: user?.id || null,
+        cartId: user?.id ? (cartItems?._id || null) : null,
         orderDate: nepalTime,
         orderUpdateDate: nepalTime,
-        addressInfo: {
+        addressInfo: user?.id ? {
           fullName: currentSelectedAddressInfo?.fullName,
           addressId: currentSelectedAddressInfo?._id,
+          address: currentSelectedAddressInfo?.address,
+          city: currentSelectedAddressInfo?.city,
+          nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
+          phone: currentSelectedAddressInfo?.phone,
+        } : {
+          fullName: currentSelectedAddressInfo?.fullName,
+          addressId: null,
           address: currentSelectedAddressInfo?.address,
           city: currentSelectedAddressInfo?.city,
           nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
@@ -276,7 +297,7 @@ const ShoppingCheckout = () => {
   // Cod initialization
   
   function handleCodPayment() {
-    if (cartItems.length == 0) {
+    if (normalizedItems.length == 0) {
       toast({
         title: "Your cart is empty. Please add items to proceed",
         variant: "destructive",
@@ -293,9 +314,9 @@ const ShoppingCheckout = () => {
       return;
     }
     setIsLoading(true);
-    console.log("cartItems in checkout", cartItems )
+    console.log("normalizedItems in checkout", normalizedItems )
     const orderData = {
-      cartItem: cartItems?.items?.map((singleCartItem) => ({
+      cartItem: normalizedItems.map((singleCartItem) => ({
         productId: singleCartItem?.productId,
         price:
           singleCartItem?.salePrice > 0
@@ -306,13 +327,20 @@ const ShoppingCheckout = () => {
         quantity: singleCartItem?.quantity,
         color: singleCartItem?.color
       })),
-      userId: user.id,
-      cartId: cartItems?._id,
+      userId: user?.id || null,
+      cartId: user?.id ? (cartItems?._id || null) : null,
       orderDate: nepalTime,
       orderUpdateDate: nepalTime,
-      addressInfo: {
+      addressInfo: user?.id ? {
         fullName: currentSelectedAddressInfo?.fullName,
         addressId: currentSelectedAddressInfo?._id,
+        address: currentSelectedAddressInfo?.address,
+        city: currentSelectedAddressInfo?.city,
+        nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
+        phone: currentSelectedAddressInfo?.phone,
+      } : {
+        fullName: currentSelectedAddressInfo?.fullName,
+        addressId: null,
         address: currentSelectedAddressInfo?.address,
         city: currentSelectedAddressInfo?.city,
         nearest_landmark: currentSelectedAddressInfo?.nearest_landmark,
@@ -321,7 +349,7 @@ const ShoppingCheckout = () => {
       orderStatus: "pending",
       paymentMethod: "cod",
       paymentStatus: "cod",
-      totalAmount: totalCartAmount + currentSelectedAddressInfo?.deliveryCharge
+      totalAmount: totalCartAmount + (currentSelectedAddressInfo?.deliveryCharge || 0)
     };
     console.log("orderdata", orderData)
     const fullName = orderData?.addressInfo?.fullName;
@@ -331,7 +359,7 @@ const ShoppingCheckout = () => {
     setTimeout(() => {
       dispatch(createCodOrder(orderData)).then((data)=> {
         if(data.payload.success) {
-          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at ${Store_Name}.Your order is confirmed and being processed. Reach us at stylemeofficial.com.`]}))
+          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at ${Store_Name}.Your order is confirmed and being processed. Reach us at butterflynepal7@gmail.com.`]}))
         }
       })
       navigate("/payment-success");
@@ -361,9 +389,12 @@ const ShoppingCheckout = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="flex flex-col gap-4 bg-[#F0F0F0] m-2 px-4">
-                  {cartItems && cartItems.items
-                    ? cartItems?.items?.map((item) => (
-                        <UserCartItemsContent key={item.id} cartItem={item} />
+                  {normalizedItems && normalizedItems.length > 0
+                    ? normalizedItems.map((item) => (
+                        <UserCartItemsContent
+                          key={`${item.productId}-${item.color || "default"}`}
+                          cartItem={item}
+                        />
                       ))
                     : null}
                   <div className="mt-8 space-y-4">

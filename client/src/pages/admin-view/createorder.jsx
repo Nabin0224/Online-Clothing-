@@ -298,16 +298,16 @@ const CreateCustomOrder = () => {
     const firstName = fullName.split(" ")[0].toUpperCase();
     console.log("first name", firstName);
 
-    !id && dispatch(
-      sendSms({
-        to: [data.phone],
-        text: [
-          `Dear ${firstName}, Thanks for your order at ${Store_Name}. Your order is confirmed and being processed. Reach us at instagram.`,
-        ],
-      })
-    ).then((date) => {
-      console.log(data, "data form sms api dispatch");
-    });
+    // !id && dispatch(
+    //   sendSms({
+    //     to: [data.phone],
+    //     text: [
+    //       `Dear ${firstName}, Thanks for your order at ${Store_Name}. Your order is confirmed and being processed. Reach us at instagram.`,
+    //     ],
+    //   })
+    // ).then((date) => {
+    //   console.log(data, "data form sms api dispatch");
+    // });
 
     const CodAmount = items.reduce(
       (sum, item) => sum + item?.price * item?.quantity,

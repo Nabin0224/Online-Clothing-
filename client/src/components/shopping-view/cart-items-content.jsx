@@ -4,21 +4,22 @@ import { Button } from "../ui/button";
 import {
   deleteCartItems,
   updateCartQuantity,
+  updateGuestCartItem,
+  deleteGuestCartItem,
 } from "../../../store/shop/cart-slice/index";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "@/hooks/use-toast";
 
 const UserCartItemsContent = ({ cartItem }) => {
+  console.log("cart items in cart content", cartItem)
   const { user } = useSelector((state) => state.auth);
   // const { cartItem } = useSelector(state => state.shoppingCart);
   const { productList } = useSelector((state) => state.shoppingProducts);
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
-  
 
   function handleDeleteCartItem(getCartItem) {
-    
+    if(user?.id) {
     dispatch(
       deleteCartItems({ userId: user?.id, productId: getCartItem.productId })
     ).then((data) => {
@@ -29,19 +30,23 @@ const UserCartItemsContent = ({ cartItem }) => {
         });
       }
     });
+  } else {
+    dispatch(deleteGuestCartItem({productId: getCartItem.productId, color: getCartItem.color}))
   }
-console.log("cartIte in cart", cartItem)
-console.log("color in productList", productList)
+}
+  console.log("cartIte in cart", cartItem);
+  console.log("color in productList", productList);
+ 
   function handleCartQuantity(getCartItem, typeofAction) {
     const updatedQuantity =
       typeofAction === "plus"
         ? getCartItem?.quantity + 1
         : getCartItem?.quantity - 1;
-  
+
     // If the action is "plus", make sure there's enough stock
     if (typeofAction === "plus") {
       const getCurrentProductIndex = productList.findIndex(
-        (item) => item._id === getCartItem?.productId 
+        (item) => item._id === getCartItem?.productId
       );
       if (getCurrentProductIndex !== -1) {
         const getTotalStock = productList[getCurrentProductIndex].totalStock;
@@ -55,16 +60,19 @@ console.log("color in productList", productList)
         }
       }
     }
-  
+    if(user?.id) {
     dispatch(
       updateCartQuantity({
         userId: user?.id,
         productId: getCartItem?.productId,
         quantity: updatedQuantity,
-        color: getCartItem?.color
+        color: getCartItem?.color,
       })
     );
+   } else {
+    dispatch(updateGuestCartItem({ productId: getCartItem.productId, quantity: updatedQuantity, color: getCartItem.color}))
   }
+}
 
   return (
     <div className="flex md:gap-1 items-center space-x-2 md:space-x-4">
@@ -75,7 +83,7 @@ console.log("color in productList", productList)
       />
       <div className="flex-1">
         <h3 className="font-normal md:font-bold">{cartItem?.title}</h3>
-        
+
         <div className="flex items-center gap-2 mt-2">
           <Button
             onClick={() => handleCartQuantity(cartItem, "minus")}
@@ -84,7 +92,7 @@ console.log("color in productList", productList)
             size="icon"
             disabled={cartItem?.quantity === 1}
           >
-            <Minus className="w-4 h-4"  strokeWidth={0.8}/>
+            <Minus className="w-4 h-4" strokeWidth={0.8} />
             <span className="sr-only">Decrease</span>
           </Button>
           <span className=" font-extralight md:font-semibold text-sm mt-1">
@@ -96,29 +104,29 @@ console.log("color in productList", productList)
             className="h-6 w-6 rounded-sm"
             size="icon"
           >
-            <Plus  style={{width: "12px", height: "12px"}} 
-            strokeWidth={0.8}/>
+            <Plus style={{ width: "12px", height: "12px" }} strokeWidth={0.8} />
             <span className="sr-only">Increase</span>
           </Button>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center">
-        <p className="font-extralight text-xs">Color:</p>
-      
-        <div className='w-3 h-3 rounded-full' style ={{backgroundColor: cartItem?.color }}>
+          <p className="font-extralight text-xs">Color:</p>
+
+          <div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: cartItem?.color }}
+          ></div>
         </div>
-        </div>
-      
+
         <p className="text-sm md:text-md font-extralight">
           Rs
           {(
-            (cartItem?.salePrice > 0
-              ? cartItem?.salePrice
-              : cartItem?.price) * cartItem?.quantity
+            (cartItem?.salePrice > 0 ? cartItem?.salePrice : cartItem?.price) *
+            cartItem?.quantity
           ).toFixed(0)}
         </p>
-        <Trash  
+        <Trash
           onClick={() => handleDeleteCartItem(cartItem)}
           className="mt-1 cursor-pointer w-5 "
           strokeWidth={0.9}

@@ -19,7 +19,6 @@ const adminCustomOrderRouter = require('./routes/admin/custom-order-routes')
 const adminDataRouter = require('./controllers/admin/data')
 const adminSmsRouter = require("./routes/admin/sms-routes")
 const adminOrderCheckRouter = require("./routes/admin/double-order")
-const adminCargoOrderRouter = require("./routes/admin/cargoOrders-routes")
 const app = express();
 const authRouter = require("./routes/auth-routes");
 const PORT = process.env.PORT || 3002;
@@ -105,7 +104,6 @@ app.use("/api/shop/search", searchRouter);
 app.use("/api/common/feature", commonFeatureRouter);
 app.use("/api/google", googleauthRouter);
 app.use('/api/shop/subscribe', shopSubscribeRouter);
-app.use("/api/admin/cargoOrders", adminCargoOrderRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running successfully at ${PORT}`);

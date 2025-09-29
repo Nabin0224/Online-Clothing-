@@ -98,12 +98,10 @@ const AdminOrdersView = () => {
       .then((response) => {
         console.log("Response from Cargo", response.data.data);
         setCargoOrders(response.data.data);
-  
-       
       })
       .catch((err) => console.error(err));
   }, []);
-
+   console.log("cargoOrders", cargoOrders)
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(
@@ -437,6 +435,7 @@ const AdminOrdersView = () => {
                     <TableHead>Order Date</TableHead>
                     <TableHead>Order Status</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Latest Comment</TableHead>
                     <TableHead>Order Price</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -445,29 +444,65 @@ const AdminOrdersView = () => {
                   {(searchOrders && searchOrders.length > 0
                     ? searchOrders
                     : orderList
-                  )?.map((item, index) => (
-                    <TableRow key={item?._id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedOrders.includes(item?._id)}
-                          onClick={(event) =>
-                            handleCheckboxChange(item?._id, event, index)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>{item?.addressInfo?.fullName}</TableCell>
-                      <TableCell>
-                        <span className="mr-3">
-                          {" "}
-                          {item?.orderDate?.split(",")[0]}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {item?.orderDate?.split(",")[1]}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 md:gap-2">
+                  )?.map((item, index) => {
+                    // find matching cargo order
+                    const normalizePhone = (phone) => phone?.toString().trim();
+
+                    const matchedOrder = cargoOrders?.filter(
+                      (order) =>
+                        normalizePhone(order?.receiver_phone) ===
+                        normalizePhone(item?.addressInfo?.phone)
+                    );
+                    
+                    const validOrder = matchedOrder
+                      ?.slice()
+                      .reverse()
+                      .find(
+                        (order) => order?.latest_status && order.latest_status.trim() !== ""
+                      );
+                    
+                    let statusText, statusColor;
+                    
+                    if (validOrder) {
+                      statusText = validOrder.latest_status;
+                      statusColor =
+                        statusText.toLowerCase() === "delivered"
+                          ? "bg-green-500"
+                          : "bg-red-500";
+                    } else {
+                      // 🚨 log the problem
+                      console.error(
+                        "No valid latest_status found for phone:",
+                        item?.addressInfo?.phone,
+                        "Matched Orders:",
+                        matchedOrder
+                      );
+                    
+                      statusText = "No Status";
+                      statusColor = "bg-gray-400";
+                    }
+                        const latestComment = matchedOrder?.latest_comment || "No Comments"
+
+                    return (
+                      <TableRow key={item?._id}>
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedOrders.includes(item?._id)}
+                            onClick={(event) =>
+                              handleCheckboxChange(item?._id, event, index)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{item?.addressInfo?.fullName}</TableCell>
+                        <TableCell>
+                          {item?.orderDate?.split(",")[0]}{" "}
+                          <span className="text-muted-foreground">
+                            {item?.orderDate?.split(",")[1]}
+                          </span>
+                        </TableCell>
+
+                        <TableCell>
                           <Badge
                             className={`py-1 px-3 ${
                               item?.orderStatus === "dispatched"
@@ -479,126 +514,88 @@ const AdminOrdersView = () => {
                           >
                             {item?.orderStatus}
                           </Badge>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <ChevronDown />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOrderStatusChange(
-                                    item?._id,
-                                    "dispatched"
-                                  )
-                                }
-                              >
-                                dispatched
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOrderStatusChange(item?._id, "pending")
-                                }
-                              >
-                                pending
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                      <Badge
-  className={`py-1 px-3 ${
-    cargoOrders?.find(
-      (order) => order?.receiver_phone === item?.addressInfo?.phone
-    )?.latest_status?.toLowerCase() === "delivered"
-      ? "bg-green-500"
-      : "bg-red-500"
-  }`}
->
-  {cargoOrders && cargoOrders?.length > 0
-    ? cargoOrders.find(
-        (order) =>
-          order?.receiver_phone === item?.addressInfo?.phone
-      )?.latest_status
-    : "No Status"}
-</Badge>
-                      </TableCell>
-                      <TableCell>{item?.totalAmount}</TableCell>
-                      <TableCell className="flex gap-2">
-                        <Button
-                          onClick={() => {
-                            setOpenDetailsDialog(true);
-                            handleFetchOrderDetails(item?._id);
-                          }}
-                        >
-                          View Details
-                        </Button>
-                        <Dialog
-                          open={openDetailsDialog}
-                          onOpenChange={() => {
-                            setOpenDetailsDialog(false);
-                            // dispatch(resetOrderDetails());
-                          }}
-                        >
-                          <div>
-                            <AdminOrderDetailsView
-                              orderDetails={orderDetails}
-                            />
-                          </div>
-                        </Dialog>
-                        <Button
-                          onClick={() => {
-                            setOpenDetailsDialog(false);
-                            handleFetchOrderDetails(item?._id);
+                        </TableCell>
 
-                            setTimeout(() => handlePrint(), 0); // Ensure order details are loaded before printing
-                          }}
-                        >
-                          Print
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            handleUpdateCustomOrder(item?._id);
-                            navigate(`/admin/createorder/${item?._id}`);
-                          }}
-                        >
-                          <Edit />
-                        </Button>
+                        <TableCell>
+                          <Badge className={`py-1 px-3 ${statusColor}`}>
+                            {statusText}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge>
+                            { latestComment }
+                          </Badge>
+                        </TableCell>
 
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline">
-                              <Trash2 />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you sure to delete order?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="text-red-500">
-                                order will be permanently deleted form database!
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-gray-500 text-white hover:bg-gray-700 rounded-sm p-1 mr-1">
-                                Cancel
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                className="bg-red-600 text-white hover:bg-red-700 rounded-sm p-1"
-                                onClick={() => {
-                                  handleDeleteCustomOrder(item?._id);
-                                }}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell>{item?.totalAmount}</TableCell>
+
+                        <TableCell className="flex gap-2">
+                          <Button
+                            onClick={() => {
+                              setOpenDetailsDialog(true);
+                              handleFetchOrderDetails(item?._id);
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Dialog
+                            open={openDetailsDialog}
+                            onOpenChange={() => setOpenDetailsDialog(false)}
+                          >
+                            <AdminOrderDetailsView orderDetails={orderDetails} />
+                          </Dialog>
+
+                          <Button
+                            onClick={() => {
+                              setOpenDetailsDialog(false);
+                              handleFetchOrderDetails(item?._id);
+                              setTimeout(() => handlePrint(), 0);
+                            }}
+                          >
+                            Print
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              navigate(`/admin/createorder/${item?._id}`)
+                            }
+                          >
+                            <Edit />
+                          </Button>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline">
+                                <Trash2 />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you sure to delete order?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-red-500">
+                                  Order will be permanently deleted from
+                                  database!
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleDeleteCustomOrder(item?._id)
+                                  }
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               <div className="flex gap-4 absolute bottom-1 left-7">

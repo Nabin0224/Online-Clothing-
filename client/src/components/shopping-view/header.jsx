@@ -1,4 +1,5 @@
 import styleme from "../../assets/logo/styleme.jpg";
+import favicon from "../../../public/favicon.jpg";
 import {
   CircleUserRound,
   House,
@@ -123,8 +124,15 @@ function HeaderRightContent({
   const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [dispatch, user?.id]);
+
+  // Normalize items for both guest (array) and logged-in (object with .items)
+  const normalizedItems = user?.id
+    ? (cartItems && cartItems.items ? cartItems.items : [])
+    : (Array.isArray(cartItems) ? cartItems : []);
 
   return (
     <div className="flex lg:flex-row lg:item-center flex-col gap-6">
@@ -155,19 +163,15 @@ function HeaderRightContent({
           className="relative"
         >
           <ShoppingCart className="h-6 w-6" />
-          {cartItems?.items?.length > 0 ? (
+          {normalizedItems.length > 0 ? (
             <span className="absolute top-[-2px] right-[4px] font-bold text-xs">
-              {cartItems?.items?.length}
+              {normalizedItems.length}
             </span>
           ) : null}
           <span className="sr-only">User cart</span>
         </Button>
         <UserCartWrapper
-          cartItems={
-            cartItems && cartItems.items && cartItems.items.length > 0
-              ? cartItems.items
-              : []
-          }
+          cartItems={normalizedItems}
           setOpenCartSheet={setOpenCartSheet}
           setOpenMobileCartSheet={setOpenMobileCartSheet}
         />
@@ -224,7 +228,7 @@ const ShoppingHeader = () => {
         "
           className="flex items-center gap-2"
         >
-          <img src={styleme} className="h-10 w-10 rounded-sm" />
+          <img src={favicon} className="h-10 w-10 rounded-sm" />
           <span className="font-bold">{Store_Name}</span>
         </Link>
 

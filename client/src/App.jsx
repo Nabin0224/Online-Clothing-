@@ -32,16 +32,57 @@ import QRCodeScanner from "./components/admin-view/scanqrcod";
 import QrCodeDetails from "./components/admin-view/qrcodedetails";
 import Legal from "./pages/shopping-view/legal";
 import { ROUTES } from "./utils/constants/keyConstants";
+import { addGuestCartItem, addToCart, fetchCartItems } from "../store/shop/cart-slice/index";
 
 const App = () => {
   const { isAuthenticated, isLoading, user } = useSelector(
     (state) => state.auth
   );
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+// NOTE: Guest cart is already hydrated in cart slice initialState from localStorage.
+// Avoid re-hydrating here to prevent duplication on refresh.
+
+  // When a user logs in, merge any guest cart from localStorage into server cart
+  useEffect(() => {
+    const mergeGuestCart = async () => {
+      if (!user?.id) return;
+
+      try {
+        const saved = JSON.parse(localStorage.getItem("guestCart")) || [];
+        if (Array.isArray(saved) && saved.length > 0) {
+          // Push all guest items to server cart
+          await Promise.all(
+            saved.map((item) =>
+              dispatch(
+                addToCart({
+                  userId: user.id,
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  color: item.color,
+                })
+              )
+            )
+          );
+
+          // Clear guest cart storage after successful merge
+          localStorage.removeItem("guestCart");
+        }
+
+        // Ensure UI shows latest server cart
+        dispatch(fetchCartItems(user.id));
+      } catch (err) {
+        // Even on error, try to at least show server cart
+        dispatch(fetchCartItems(user.id));
+      }
+    };
+
+    mergeGuestCart();
+  }, [dispatch, user?.id]);
 
   if (isLoading) {
     return <div className="text-2xl font-bold content-center">Loading...</div>;
@@ -96,9 +137,9 @@ const App = () => {
             <Route
               path={ROUTES.CHECKOUT}
               element={
-                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                // <CheckAuth isAuthenticated={isAuthenticated} user={user}>
                   <ShoppingCheckout />
-                </CheckAuth>
+                // </CheckAuth>
               }
             />
             <Route path={ROUTES.LISTING} element={<ShoppingListing />} />

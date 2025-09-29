@@ -4,14 +4,19 @@ import { Button } from '../ui/button';
 import UserCartItemsContent from './cart-items-content';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from '@radix-ui/react-dropdown-menu';
+import { useSelector } from 'react-redux';
 
-const UserCartWrapper = ({cartItems, setOpenCartSheet, setOpenMobileCartSheet}) => {
+const UserCartWrapper = ({ setOpenCartSheet, setOpenMobileCartSheet}) => {
     const  navigate = useNavigate();
-    
-    
+    const { cartItems } = useSelector((state)=> state.shoppingCart);
+
+    const safeItems = Array.isArray(cartItems)
+      ? cartItems
+      : (cartItems && cartItems.items ? cartItems.items : []);
+
     const totalCartAmount = 
-    cartItems && cartItems.length > 0 ? 
-    cartItems.reduce(
+    safeItems && safeItems.length > 0 ? 
+    safeItems.reduce(
         (sum, currentItem) => 
              sum + (
         currentItem?.salePrice >  0 ? currentItem.salePrice : currentItem?.price
@@ -28,10 +33,9 @@ const UserCartWrapper = ({cartItems, setOpenCartSheet, setOpenMobileCartSheet}) 
         </SheetHeader>
         <div className="mt-8 space-y-4">
         <Separator className=" h-[1px] bg-black/35 mt-10"/>
-        {
-            cartItems && cartItems?.length > 0 ? 
-            cartItems?.map((item) => <UserCartItemsContent  cartItem= {item}/> ) : null
-        }
+        {safeItems && safeItems.length > 0 
+          ? safeItems.map((item) => <UserCartItemsContent cartItem={item} />) 
+          : null}
         </div>
         <Separator className=" h-[1px] bg-black/35 mt-14"/>
         <div className="mt-8 space-y-4">

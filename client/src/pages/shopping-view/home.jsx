@@ -89,11 +89,11 @@ export const ShoppingHome = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % featureImagesList.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % featureImagesList?.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [featureImagesList.length]);
+  }, [featureImagesList?.length]);
 
   useEffect(() => {
     dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: {} }));
@@ -107,20 +107,37 @@ export const ShoppingHome = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* <ShoppingHeader/> */}
       <div className="relative w-full h-[700px] overflow-hidden">
-        {featureImagesList && featureImagesList.length > 0
-          ? featureImagesList?.map((slide, index) => (
-              <img
-                src={slide?.image}
-                key={index}
-                className={`absolute w-full object-cover h-full top-0 left-0 transition-opacity duration-1000 
-              ${index === currentIndex ? "opacity-100" : "opacity-0"}`}
-              />
-            ))
-          : null}
-       
-      </div>
+  {featureImagesList && featureImagesList?.length > 0
+    ? featureImagesList?.map((slide, index) => (
+        <img
+          src={slide?.image}
+          key={index}
+          className={`absolute w-full object-cover h-full top-0 left-0 transition-opacity duration-1000 
+          ${index === currentIndex ? "opacity-100" : "opacity-0"}`}
+        />
+      ))
+    : null}
+
+  {/* Overlay (dim background for readability) */}
+  <div className="absolute inset-0 bg-black/40"></div>
+
+  {/* Text content */}
+  <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6">
+    <h1 className="text-4xl md:text-6xl font-bold mb-4">
+      Get up to <span className="text-yellow-400 md:text-8xl">30% OFF</span> on First Purchase
+    </h1>
+    <p className="text-lg md:text-xl mb-6 mt-4 opacity-90">
+      Shop the latest fashion and enjoy exclusive festival deals.
+    </p>
+    <Button
+      onClick={() => navigate("/listing")}
+      className="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-300 transition"
+    >
+      Shop Now
+    </Button>
+  </div>
+</div>
 
    
 

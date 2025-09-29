@@ -26,7 +26,7 @@ const getAllOrdersFromCargo = async (req, res) => {
         }
       );
       const { data, meta } = getAllOrders.data;
-    //   console.log("data", data)
+      console.log("data", data)
       allOrdersList = [...allOrdersList, ...data];
       if (meta.current_page < meta.last_page) {
         page++;

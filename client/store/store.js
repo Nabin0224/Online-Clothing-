@@ -13,6 +13,7 @@ import codOrderSlice from './cod-slice/index'
 import customOrderSlice from "./admin/order-slice/custom-order/index"
 import adminOrdersDataSlice from "./admin/data-slice/index"
 import adminSmsSlice from "./admin/sms-slice/index"
+
 // import googleAuthReducer from './google-auth/index'
 
 const store = configureStore({
@@ -31,6 +32,7 @@ const store = configureStore({
     featureImage : featureImageSlice,
     ordersData : adminOrdersDataSlice,
     sms : adminSmsSlice,
+ 
 
 
     // googleAuth: googleAuthReducer
