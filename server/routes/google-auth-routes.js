@@ -97,18 +97,19 @@ router.get(
           console.log("Storing userId in cookie", user._id);
 
           //Storing user Id in a secure cookie 
+          const isProduction = process.env.NODE_ENV === "production";
 
           res.cookie("googleUserId", user._id.toString(), {
             httpOnly: true,
-            secure: true,
+            sameSite: isProduction ? "None" : "Lax",
             sameSite : "None",
-            // domain: ".stylemeofficial.com"
+            domain: isProduction ? process.env.CLIENT_BASE_URL : undefined,
             
           })
   
        
           // Redirect user to frontend
-          res.redirect(`${process.env.FRONTEND_URL}`);
+          res.redirect(`${process.env.FRONTEND_URL}/auth/login`);
         
     } catch (error) {
         console.log("error in call back is ", error.message);
@@ -174,8 +175,12 @@ const user = await GoogleUser.findById(userId);
     // Send user response
     console.log("token for google", token)
     console.log("username", user.username)
-  
-    res.cookie('token', token, { httpOnly: true, secure: true }).json({
+    const isProduction = process.env.NODE_ENV === "production";
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      domain: isProduction ? process.env.CLIENT_BASE_URL : undefined, }).json({
         success: true,
         message: "Loggined in successfully",
         user: {
