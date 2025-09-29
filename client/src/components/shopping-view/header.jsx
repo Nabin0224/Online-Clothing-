@@ -205,8 +205,7 @@ function HeaderRightContent({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={()=> {handleLogOut
-           setOpenMobileCartSheet(false)}
+          <DropdownMenuItem onClick={()=> {handleLogOut(); setOpenMobileCartSheet(false)}
           }
            >
             <LogOutIcon className="mr-2 h-4 w-4" /> Log out

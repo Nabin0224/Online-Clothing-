@@ -173,7 +173,7 @@ router.get("/checkGoogleAuth", async (req, res) => {
 });
 
 // Logout Route
-router.get("/logout", (req, res) => {
+router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.clearCookie("googleUserId");
   req.logout(() => {
