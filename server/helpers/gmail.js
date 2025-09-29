@@ -48,7 +48,7 @@ const sendOrderConfirmationEmail = async (order) => {
 
         <p style="margin-top: 20px;"><strong>Total Amount:</strong> Rs. ${order?.totalAmount}</p>
         <hr>
-        <p style="font-size: 12px; color: #777;">This order was placed from your STYLE ME website.</p>
+        <p style="font-size: 12px; color: #777;">This order was placed from your Online Clothing Store Nepal website.</p>
       </div>
     `,
   };

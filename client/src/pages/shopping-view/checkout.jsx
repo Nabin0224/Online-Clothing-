@@ -359,7 +359,7 @@ const ShoppingCheckout = () => {
     setTimeout(() => {
       dispatch(createCodOrder(orderData)).then((data)=> {
         if(data.payload.success) {
-          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at ${Store_Name}.Your order is confirmed and being processed. Reach us at butterflynepal7@gmail.com.`]}))
+          dispatch(sendSms({to: [orderData?.addressInfo?.phone], text:[`Dear ${firstName}, Thanks for your order at ${Store_Name}.Your order is confirmed and being processed. Reach us at instagram.`]}))
         }
       })
       navigate("/payment-success");
