@@ -10,7 +10,7 @@ const googlePassport = passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.CALLBACK_URL,
+      callbackURL: `http://localhost:3002/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
