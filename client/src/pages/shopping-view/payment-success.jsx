@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Store_Name } from '../../utils/constants/storeConstants'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -39,7 +40,7 @@ const PaymentSuccessPage = () => {
             <span className='font-light' >- Delivery Time: 2-5 business days</span>
           </div>
           <div className="text-sm tracking-tighter text-gray-500 mb-4 w-full px-4 mt-6">
-            Need help? Customer support at stylemeofficial.np@gmail.com
+            Need help? Customer support at instagram {Store_Name}
           </div>
           <Button 
             onClick={handleViewDetails} 
