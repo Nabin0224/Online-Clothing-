@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
+import {motion} from "framer-motion";
 import {
   deleteProduct,
   fetchAllProducts,
