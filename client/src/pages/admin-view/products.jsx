@@ -79,6 +79,7 @@ const AdminProducts = () => {
                   <img
                     src={productItem?.image[0]}
                     alt="Product"
+                    loading="lazy"
                     className="h-12 w-12 object-cover"
                   />
                 </TableCell>
