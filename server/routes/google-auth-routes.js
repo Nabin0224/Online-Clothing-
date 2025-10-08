@@ -149,8 +149,8 @@ router.get("/checkGoogleAuth", async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "None" : "Lax",
+        secure: true,
+        sameSite: "none"
         // ...(isProduction && { domain: "online-clothing-six.vercel.app/" })
       })
       .json({
