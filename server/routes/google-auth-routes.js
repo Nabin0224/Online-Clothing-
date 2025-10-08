@@ -95,7 +95,9 @@ router.get(
       res.cookie("googleUserId", user._id.toString(), {
         httpOnly: true,
         secure: true,
-        sameSite: "none"
+        sameSite: "none",
+        path: '/',
+        domain: '.vercel.app'
         // ...(isProduction && { domain: "online-clothing-six.vercel.app/" }),
       });
 
