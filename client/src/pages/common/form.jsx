@@ -89,7 +89,30 @@ function CommonForm({
 
     switch (getControlItem.componentType) {
       case "input":
-        element = (
+          // Check if this is the phone input
+  if (getControlItem.name === "phone") {
+    element = (
+      <Input
+        className="border-gray-600 focus:border-blue-400 focus:outline-none"
+        name={getControlItem.name}
+        placeholder={getControlItem.placeholder}
+        id={getControlItem.name}
+        type="text" // Use text to prevent scroll arrows
+        value={value}
+        maxLength={10}
+        minLength={10} // limit max 10 digits
+        onChange={(event) => {
+          const onlyDigits = event.target.value.replace(/\D/g, ""); // remove non-digits
+          setFormData({
+            ...formData,
+            [getControlItem.name]: onlyDigits,
+          });
+        }}
+        onWheel={(e) => e.target.blur()} // prevent trackpad scroll changing value
+      />
+    );
+  } 
+     else {   element = (
           <Input
             className=" border-gray-600 focus:border-blue-400 focus:outline-none"
             name={getControlItem.name}
@@ -105,6 +128,7 @@ function CommonForm({
             }
           />
         );
+      }
         break;
 
       // case "select":
