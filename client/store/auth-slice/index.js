@@ -50,7 +50,7 @@ const checkAuth = createAsyncThunk("/auth/check-auth", async () => {
 const logOut = createAsyncThunk("auth/logout", async () => {
   // Optional: Send request to your server to handle logout (e.g., invalidate token)
   const response = await axios.post(
-    `${import.meta.env.VITE_API_URL}/api/auth/logout`, // Update with your API URL if necessary
+    `${import.meta.env.VITE_API_URL}/api/auth/logout`,
     {},
     {
       withCredentials: true,
