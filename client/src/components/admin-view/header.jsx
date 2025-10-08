@@ -16,7 +16,7 @@ const AdminHeader = ({ setOpen }) => {
   const handleLogout = async () => {
     // Dispatch logout action
     // await dispatch(logOut());
-    dispatch(resetTokenAndCredentianls)
+    dispatch(resetTokenAndCredentianls())
     sessionStorage.clear();
 
     // Redirect to the login or register page

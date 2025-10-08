@@ -113,9 +113,9 @@ function HeaderRightContent({
 }) {
   function handleLogOut() {
     // dispatch(logOut());
-    dispatch(resetTokenAndCredentianls)
+    dispatch(resetTokenAndCredentianls())
     sessionStorage.clear();
-    navigate("/auth/login");
+    navigate("/");
   }
 
   const { cartItems } = useSelector((state) => state.shoppingCart);
