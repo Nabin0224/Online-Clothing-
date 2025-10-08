@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 
-import { logOut } from "../../../store/auth-slice/index";
+import { logOut, resetTokenAndCredentianls } from "../../../store/auth-slice/index";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 const AdminHeader = ({ setOpen }) => {
@@ -15,7 +15,9 @@ const AdminHeader = ({ setOpen }) => {
 
   const handleLogout = async () => {
     // Dispatch logout action
-    await dispatch(logOut());
+    // await dispatch(logOut());
+    dispatch(resetTokenAndCredentianls)
+    sessionStorage.clear();
 
     // Redirect to the login or register page
     navigate("/");

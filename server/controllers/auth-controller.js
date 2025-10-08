@@ -82,16 +82,30 @@ const loginUser = async (req, res) => {
       { expiresIn: "60m" }
     );
 
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' }).json({
-      success: true,
-      message: "Loggined in successfully",
-      user: {
+    // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' }).json({
+    //   success: true,
+    //   message: "Loggined in successfully",
+    //   user: {
+    //     email: existingUser.email,
+    //     role: existingUser.role,
+    //     id: existingUser._id,
+    //     userName : existingUser.username
+    //   },
+    // });
+
+// for different domains or for vercel and render 
+res.status(200).json({
+  success: true,
+  message: Logged in successfully,
+  token,
+  user: {
         email: existingUser.email,
         role: existingUser.role,
         id: existingUser._id,
         userName : existingUser.username
       },
-    });
+})
+
   } catch (e) {
     console.log(e);
     res.status(500).json({
@@ -116,8 +130,36 @@ const logoutUser = ( req, res )=> {
 
 // check_auth middleware
 
+// const authMiddleware = async ( req, res, next )=> {
+//     const token = req.cookies.token;
+//     console.log("tokens in middleware", token)
+
+//     if(!token)  return res.status(401).json({
+//         success: false,
+//         message: "Unauthorized user!"
+//     })
+
+//     try {
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
+//         req.user = decoded;
+//         next();
+        
+
+//     } catch (error) {
+//         return res.json({
+//         success: false,
+//         message: "Unauthorized user!",
+//         error : error.message,
+//     })
+// }
+
+// } 
+
+// instance for different domains 
+
 const authMiddleware = async ( req, res, next )=> {
-    const token = req.cookies.token;
+   const authHeader = req.headers['authorization'];
+   const token = authHeader && authHeader.split(' ')[1]
     console.log("tokens in middleware", token)
 
     if(!token)  return res.status(401).json({

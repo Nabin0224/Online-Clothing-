@@ -37,7 +37,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
-import { logOut } from "../../../store/auth-slice/index";
+import { logOut, resetTokenAndCredentianls } from "../../../store/auth-slice/index";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "../../../store/shop/cart-slice/index";
 import { Label } from "../ui/label";
@@ -112,7 +112,9 @@ function HeaderRightContent({
   setOpenMobileCartSheet = () => {},
 }) {
   function handleLogOut() {
-    dispatch(logOut());
+    // dispatch(logOut());
+    dispatch(resetTokenAndCredentianls)
+    sessionStorage.clear();
     navigate("/auth/login");
   }
 

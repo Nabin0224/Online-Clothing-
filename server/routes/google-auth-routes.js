@@ -87,22 +87,33 @@ router.get(
         });
       }
 
-      console.log("Storing userId in cookie", user._id);
+      // console.log("Storing userId in cookie", user._id);
 
       // Storing user Id in a secure cookie
       const isProduction = process.env.NODE_ENV === "production";
 
-      res.cookie("googleUserId", user._id.toString(), {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: '/',
-        domain: '.vercel.app'
-        // ...(isProduction && { domain: "online-clothing-six.vercel.app/" }),
-      });
+      // res.cookie("googleUserId", user._id.toString(), {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   path: '/',
+      //   // ...(isProduction && { domain: "online-clothing-six.vercel.app/" }),
+      // });
+
+     const googleToken = jwt.sign( {
+      id: user._id,
+          email: user.email,
+          userName: user.username,
+          avatar: user.avatar,
+     },
+    
+      process.env.JWT_SECRET_KEY,
+      {expiresIn: "1h"}
+    );
+    console.log("Generated Google Token", googleToken)
 
       // Redirect user to frontend
-      res.redirect(`${process.env.FRONTEND_URL}/auth/login`);
+      res.redirect(`${process.env.FRONTEND_URL}/auth/login?token=${googleToken}`);
     } catch (error) {
       console.log("error in call back is ", error.message);
       res.status(500).json({
@@ -115,18 +126,40 @@ router.get(
 // Check Google Auth
 router.get("/checkGoogleAuth", async (req, res) => {
   try {
-    const userId = req.cookies.googleUserId;
-    console.log(req.cookies);
-    console.log("userID in checkgoogleauth", userId);
+    // const userId = req.cookies.googleUserId;
+    // console.log(req.cookies);
+    // console.log("userID in checkgoogleauth", userId);
+    
+    const authHeader = req.headers.authorization;
+    if(!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided!"
+      });
+    }
+    const googleToken = authHeader.split(" ")[1];
+    console.log("reached in goggle auth check", googleToken)
 
-    if (!userId) {
+    const decoded = jwt.verify(googleToken, process.env.JWT_SECRET_KEY);
+
+    
+    // if (!userId) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "User not found!",
+    //   });
+    // }
+    
+    // const user = await GoogleUser.findById(userId);
+
+    const user = await GoogleUser.findById(decoded.id);
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found!",
       });
     }
-
-    const user = await GoogleUser.findById(userId);
+  
 
     // Generate JWT token
     const token = jwt.sign(
@@ -148,24 +181,38 @@ router.get("/checkGoogleAuth", async (req, res) => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none"
-        // ...(isProduction && { domain: "online-clothing-six.vercel.app/" })
-      })
-      .json({
-        success: true,
-        message: "Loggined in successfully",
-        user: {
-          email: user.email,
-          role: user.role || "user",
-          id: user._id,
-          userName: user.username,
-          avatar: user.avatar,
-        },
-      });
+    // res
+    //   .cookie("token", token, {
+    //     httpOnly: true,
+    //     secure: true,
+    //     sameSite: "none"
+    //     // ...(isProduction && { domain: "online-clothing-six.vercel.app/" })
+    //   })
+    //   .json({
+    //     success: true,
+    //     message: "Loggined in successfully",
+    //     user: {
+    //       email: user.email,
+    //       role: user.role || "user",
+    //       id: user._id,
+    //       userName: user.username,
+    //       avatar: user.avatar,
+    //     },
+    //   });
+
+    res.status(200).json({
+      success: true,
+      message: "successfully saved google token",
+      googleToken,
+      user: {
+              email: user.email,
+              role: user.role || "user",
+              id: user._id,
+              userName: user.username,
+              avatar: user.avatar,
+            },
+
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,

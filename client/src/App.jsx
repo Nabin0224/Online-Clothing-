@@ -42,7 +42,8 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(checkAuth());
+    const token = JSON.parse(sessionStorage.getItem("token"))
+    dispatch(checkAuth(token));
   }, [dispatch]);
 // NOTE: Guest cart is already hydrated in cart slice initialState from localStorage.
 // Avoid re-hydrating here to prevent duplication on refresh.

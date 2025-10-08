@@ -7,6 +7,8 @@ const initialState = {
   isAuthenticated: false,
   isLoading: true,
   user: null,
+  token: null,
+  googleToken: null,
 };
 
 // Async thunk for registerUser
@@ -36,11 +38,23 @@ const loginUser = createAsyncThunk("auth/login", async (data) => {
 
 //Async thunk for checking authentication for every refresh
 
-const checkAuth = createAsyncThunk("/auth/check-auth", async () => {
+// const checkAuth = createAsyncThunk("/auth/check-auth", async () => {
+//   const response = await axios.get(
+//     `${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
+//     {
+//       withCredentials: true,
+//     }
+//   );
+//   return response.data;
+// });
+const checkAuth = createAsyncThunk("/auth/check-auth", async (token) => {
   const response = await axios.get(
     `${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
     {
       withCredentials: true,
+      headers: {
+       Authorization: `Bearer ${token }`
+      },
     }
   );
   return response.data;
@@ -61,9 +75,15 @@ const logOut = createAsyncThunk("auth/logout", async () => {
 });
 
 export const checkGoogleAuth = createAsyncThunk("auth/checkAuth", async () => {
+  const token = localStorage.getItem("token");
   const response = await axios.get(
     `${import.meta.env.VITE_API_URL}/api/google/checkGoogleAuth`,
-    { withCredentials: true }
+    { withCredentials: true ,
+headers: {
+  Authorization: `Bearer ${token}`,
+}
+
+    }
   );
   return response.data;
 });
@@ -75,6 +95,11 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {},
+    resetTokenAndCredentianls : (state) => {
+      state.user = null;
+      state.isAuthenticated =  false;
+      state.googleToken = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -98,11 +123,15 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
+        state.token = action.payload.token;
+        sessionStorage.setItem('token', JSON.stringify(action.payload.token))
+
       })
       .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.token = null;
       })
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
@@ -138,15 +167,18 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = true;
+        state.googleToken = action.payload.googleToken;
+        sessionStorage.setItem("token", JSON.stringify(action.payload.googleToken))
       })
       .addCase(checkGoogleAuth.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.googleToken = null;
       });
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, resetTokenAndCredentianls } = authSlice.actions;
 export default authSlice.reducer;
 export { registerUser, loginUser, checkAuth, logOut };

@@ -19,6 +19,10 @@ const [isStart, setIsStart] = useState(false)
 
 useEffect(() => {
   if (localStorage.getItem("oauthStarted")) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token")
+    localStorage.setItem("token", token)
+    console.log("token in auth for google", token)
     dispatch(checkGoogleAuth());
     localStorage.removeItem("oauthStarted"); // Cleanup after check
   }
