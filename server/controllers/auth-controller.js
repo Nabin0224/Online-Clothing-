@@ -107,12 +107,7 @@ const loginUser = async (req, res) => {
 const logoutUser = ( req, res )=> {
   res.clearCookie("googleUserId")
   res.clearCookie("connect.sid")
-    res.clearCookie("token", {
-  httpOnly: true,
-  secure: true,        // must match your production setup
-  sameSite: "none",    // if cross-site
-  path: "/",           // path must match
-});
+    res.clearCookie('token');
     res.status(200).json({
         success: true,
         message: "Loggout out successfully"

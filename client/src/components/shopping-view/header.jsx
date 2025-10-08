@@ -113,7 +113,7 @@ function HeaderRightContent({
 }) {
   function handleLogOut() {
     dispatch(logOut());
-    navigate("/");
+    navigate("/auth/login");
   }
 
   const { cartItems } = useSelector((state) => state.shoppingCart);
