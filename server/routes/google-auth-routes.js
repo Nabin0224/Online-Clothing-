@@ -100,25 +100,29 @@ router.get(
       //   // ...(isProduction && { domain: "online-clothing-six.vercel.app/" }),
       // });
 
-     const googleToken = jwt.sign( {
-      id: user._id,
+      const googleToken = jwt.sign(
+        {
+          id: user._id,
           email: user.email,
           userName: user.username,
           avatar: user.avatar,
-          role: user.role
-     },
-    
-      process.env.JWT_SECRET_KEY,
-      {expiresIn: "1h"}
-    );
-    console.log("Generated Google Token", googleToken)
+          role: user.role,
+        },
+
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "1h" }
+      );
+      console.log("Generated Google Token", googleToken);
 
       // Redirect user to frontend
-      res.redirect(`${process.env.FRONTEND_URL}/auth/login?token=${googleToken}`);
+      
+      res.redirect(
+        `${process.env.FRONTEND_URL}/auth/login?token=${encodeURIComponent(googleToken)}`
+      );
     } catch (error) {
       console.log("error in call back is ", error.message);
       res.status(500).json({
-      success: false,
+        success: false,
       });
     }
   }
@@ -130,27 +134,26 @@ router.get("/checkGoogleAuth", async (req, res) => {
     // const userId = req.cookies.googleUserId;
     // console.log(req.cookies);
     // console.log("userID in checkgoogleauth", userId);
-    
+
     const authHeader = req.headers.authorization;
-    if(!authHeader) {
+    if (!authHeader) {
       return res.status(401).json({
         success: false,
-        message: "No token provided!"
+        message: "No token provided!",
       });
     }
     const googleToken = authHeader.split(" ")[1];
-    console.log("reached in google auth check", googleToken)
+    console.log("reached in google auth check", googleToken);
 
     const decoded = jwt.verify(googleToken, process.env.JWT_SECRET_KEY);
 
-    
     // if (!userId) {
     //   return res.status(404).json({
     //     success: false,
     //     message: "User not found!",
     //   });
     // }
-    
+
     // const user = await GoogleUser.findById(userId);
 
     const user = await GoogleUser.findById(decoded.id);
@@ -160,7 +163,6 @@ router.get("/checkGoogleAuth", async (req, res) => {
         message: "User not found!",
       });
     }
-  
 
     // Generate JWT token
     // const token = jwt.sign(
@@ -177,7 +179,7 @@ router.get("/checkGoogleAuth", async (req, res) => {
     // );
 
     // Send user response
-   
+
     console.log("username", user.username);
     console.log("username", user.role);
 
@@ -206,15 +208,14 @@ router.get("/checkGoogleAuth", async (req, res) => {
       success: true,
       message: "successfully saved google token",
       user: {
-              email: user.email,
-              role: user.role || "user",
-              id: user._id,
-              userName: user.username,
-              avatar: user.avatar,
-              role: user.role,
-            },
-
-    })
+        email: user.email,
+        role: user.role || "user",
+        id: user._id,
+        userName: user.username,
+        avatar: user.avatar,
+        role: user.role,
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

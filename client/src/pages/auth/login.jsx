@@ -20,12 +20,14 @@ const [isStart, setIsStart] = useState(false)
 useEffect(() => {
   if (localStorage.getItem("oauthStarted")) {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token")
-    console.log("token from google url", token)
+    const token = urlParams.get("token");
+    const decodedToken = decodeURIComponent(token);
+    
+    console.log("token from google url", decodedToken)
     if(token) {
-      localStorage.setItem("googleToken", token)
-      console.log("token in auth for google", token)
-      dispatch(checkGoogleAuth(token));
+      localStorage.setItem("googleToken", decodedToken)
+      console.log("token in auth for google", decodedToken)
+      dispatch(checkGoogleAuth(decodedToken));
     } else {
       console.warn("No token found in URL")
     }
