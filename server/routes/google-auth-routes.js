@@ -105,6 +105,7 @@ router.get(
           email: user.email,
           userName: user.username,
           avatar: user.avatar,
+          role: user.role
      },
     
       process.env.JWT_SECRET_KEY,
@@ -138,7 +139,7 @@ router.get("/checkGoogleAuth", async (req, res) => {
       });
     }
     const googleToken = authHeader.split(" ")[1];
-    console.log("reached in goggle auth check", googleToken)
+    console.log("reached in google auth check", googleToken)
 
     const decoded = jwt.verify(googleToken, process.env.JWT_SECRET_KEY);
 
@@ -162,22 +163,23 @@ router.get("/checkGoogleAuth", async (req, res) => {
   
 
     // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role || "user",
-        userName: user.username,
-      },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
-    );
+    // const token = jwt.sign(
+    //   {
+    //     id: user._id,
+    //     email: user.email,
+    //     role: user.role || "user",
+    //     userName: user.username,
+    //   },
+    //   process.env.JWT_SECRET_KEY,
+    //   {
+    //     expiresIn: "1h",
+    //   }
+    // );
 
     // Send user response
     console.log("token for google", token);
     console.log("username", user.username);
+    console.log("username", user.role);
 
     const isProduction = process.env.NODE_ENV === "production";
 
@@ -203,13 +205,13 @@ router.get("/checkGoogleAuth", async (req, res) => {
     res.status(200).json({
       success: true,
       message: "successfully saved google token",
-      googleToken,
       user: {
               email: user.email,
               role: user.role || "user",
               id: user._id,
               userName: user.username,
               avatar: user.avatar,
+              role: user.role,
             },
 
     })

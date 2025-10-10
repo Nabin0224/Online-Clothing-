@@ -16,7 +16,7 @@ import ShoppingHome from "./pages/shopping-view/home";
 import CheckAuth from "./pages/common/check-auth";
 import UnAuthPage from "./pages/unauth-page";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "../store/auth-slice/index";
+import { checkAuth, checkGoogleAuth } from "../store/auth-slice/index";
 import PayPalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import EsewaReturnPage from "./pages/shopping-view/esewa-return";
@@ -43,8 +43,11 @@ const App = () => {
 
   useEffect(() => {
     const token = JSON.parse(sessionStorage.getItem("token"))
-    dispatch(checkAuth(token));
+    const googleToken = localStorage.getItem("token");
+    // dispatch(checkAuth(token));
+    dispatch(checkGoogleAuth(googleToken))
   }, [dispatch]);
+
 // NOTE: Guest cart is already hydrated in cart slice initialState from localStorage.
 // Avoid re-hydrating here to prevent duplication on refresh.
 

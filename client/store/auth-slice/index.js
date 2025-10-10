@@ -168,7 +168,7 @@ const authSlice = createSlice({
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = true;
         state.googleToken = action.payload.googleToken;
-        sessionStorage.setItem("token", JSON.stringify(action.payload.googleToken))
+        // sessionStorage.setItem("token", JSON.stringify(action.payload.googleToken))
       })
       .addCase(checkGoogleAuth.rejected, (state) => {
         state.isLoading = false;

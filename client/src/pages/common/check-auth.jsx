@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
   const isAdmin = isAuthenticated && user?.role === "admin";
+  console.log("isAdmin", isAdmin)
   const isAdminPath = location.pathname.startsWith("/admin");
   const isAuthPath =
     location.pathname.includes("/login") ||
@@ -35,7 +36,7 @@ function CheckAuth({ isAuthenticated, user, children }) {
 
   // Non-admin users should not access admin routes
   if (!isAdmin && isAdminPath) {
-    return <Navigate to="/unauth-page" />;
+    return <Navigate to="/unauth" />;
   }
 
   return <>{children}</>;

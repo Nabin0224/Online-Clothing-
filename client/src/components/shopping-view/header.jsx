@@ -115,6 +115,7 @@ function HeaderRightContent({
     // dispatch(logOut());
     dispatch(resetTokenAndCredentianls())
     sessionStorage.clear();
+    localStorage.clear();
     navigate("/");
   }
 
