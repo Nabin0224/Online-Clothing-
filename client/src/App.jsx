@@ -88,7 +88,7 @@ const App = () => {
   }, [dispatch, user?.id]);
 
   if (isLoading) {
-    return <div className="text-2xl font-bold content-center h-[100vh] w-[100vw]"><Spinner/></div>;
+    return <div className="text-2xl font-bold content-center h-[100vh] w-[100vw]"><Spinner className="size-8 text-purple-500" /></div>;
   }
 
   return (
