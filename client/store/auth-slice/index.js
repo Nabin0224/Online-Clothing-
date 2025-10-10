@@ -53,7 +53,7 @@ const checkAuth = createAsyncThunk("/auth/check-auth", async (token) => {
     {
       withCredentials: true,
       headers: {
-       Authorization: `Bearer ${token }`
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -74,15 +74,16 @@ const logOut = createAsyncThunk("auth/logout", async () => {
   return response.data;
 });
 
-export const checkGoogleAuth = createAsyncThunk("auth/checkAuth", async () => {
-  const token = localStorage.getItem("token");
+export const checkGoogleAuth = createAsyncThunk("auth/checkAuth", async (tokenArg) => {
+  const token = tokenArg || localStorage.getItem("googleToken");
+  console.log("google token in check auth", token)
   const response = await axios.get(
     `${import.meta.env.VITE_API_URL}/api/google/checkGoogleAuth`,
-    { withCredentials: true ,
-headers: {
-  Authorization: `Bearer ${token}`,
-}
-
+    {
+       withCredentials: true ,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
   return response.data;
@@ -95,11 +96,11 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {},
-    resetTokenAndCredentianls : (state) => {
+    resetTokenAndCredentianls: (state) => {
       state.user = null;
-      state.isAuthenticated =  false;
+      state.isAuthenticated = false;
       state.googleToken = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -124,8 +125,7 @@ const authSlice = createSlice({
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
         state.token = action.payload.token;
-        sessionStorage.setItem('token', JSON.stringify(action.payload.token))
-
+        sessionStorage.setItem("token", JSON.stringify(action.payload.token));
       })
       .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
@@ -166,7 +166,7 @@ const authSlice = createSlice({
         console.log("payload in checkauth google", action.payload);
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
-        state.isAuthenticated = true;
+        state.isAuthenticated = action.payload.success;
         state.googleToken = action.payload.googleToken;
         // sessionStorage.setItem("token", JSON.stringify(action.payload.googleToken))
       })

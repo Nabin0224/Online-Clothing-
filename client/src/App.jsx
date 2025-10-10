@@ -43,11 +43,9 @@ const App = () => {
 
   useEffect(() => {
     const token = JSON.parse(sessionStorage.getItem("token"))
-    const googleToken = localStorage.getItem("token");
-    // dispatch(checkAuth(token));
-    dispatch(checkGoogleAuth(googleToken))
+    dispatch(checkAuth(token));
+    dispatch(checkGoogleAuth())
   }, [dispatch]);
-
 // NOTE: Guest cart is already hydrated in cart slice initialState from localStorage.
 // Avoid re-hydrating here to prevent duplication on refresh.
 

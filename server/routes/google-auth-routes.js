@@ -177,7 +177,7 @@ router.get("/checkGoogleAuth", async (req, res) => {
     // );
 
     // Send user response
-    console.log("token for google", token);
+   
     console.log("username", user.username);
     console.log("username", user.role);
 
