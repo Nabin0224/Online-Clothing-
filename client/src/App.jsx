@@ -33,6 +33,7 @@ import QrCodeDetails from "./components/admin-view/qrcodedetails";
 import Legal from "./pages/shopping-view/legal";
 import { ROUTES } from "./utils/constants/keyConstants";
 import { addGuestCartItem, addToCart, fetchCartItems } from "../store/shop/cart-slice/index";
+import { Spinner } from "./components/ui/spinner";
 
 const App = () => {
   const { isAuthenticated, isLoading, user } = useSelector(
@@ -87,7 +88,7 @@ const App = () => {
   }, [dispatch, user?.id]);
 
   if (isLoading) {
-    return <div className="text-2xl font-bold content-center">Loading...</div>;
+    return <div className="text-2xl font-bold content-center h-[100vh] w-[100vw]"><Spinner/></div>;
   }
 
   return (
